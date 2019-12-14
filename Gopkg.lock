@@ -52,7 +52,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:e0e7407760180ecbb8f9a005164e28e2fb2e3c43643937ce963fe70759c26262"
+  digest = "1:7e5b383c684923c8d888463833f6917901b7b21327a8054186b6fd41f3d31d91"
   name = "github.com/keybase/go-keychain"
   packages = ["."]
   pruneopts = "UT"
