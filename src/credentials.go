@@ -9,6 +9,17 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
+const keyringKey = "jirbCreds"
+
+func getKeyring() keyring.Keyring {
+	ring, err := keyring.Open(keyring.Config{
+		ServiceName: "Jirb",
+	})
+	check(err)
+	return ring
+}
+
+
 func askCredentials() (string, string) {
 	fmt.Print("Jira username: ")
 	var username string
