@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"net/http"
 	"os"
@@ -20,7 +21,7 @@ func mapIssuesToPromptItems(issues []Issue) []string {
 }
 
 func main() {
-	fmt.Println("Hello, world.")
+	updateConfig := flag.Bool("config", false, "Option to cycle through configurations and optionally change values")
 
 	ring := getKeyring()
 
@@ -29,7 +30,7 @@ func main() {
 	if os.IsNotExist(err) || credsItem.Data == nil {
 		username, password := askCredentials()
 		encodedCredentials = encodeCredentials(username, password)
-		saveCredentials(encodedCredentials, ring)
+		saveCredentials(username, password, ring)
 	} else {
 		check(err)
 		encodedCredentials = string(credsItem.Data)

@@ -22,3 +22,8 @@ type IssuesResponse struct {
 	MaxResults int
 	Issues     []Issue
 }
+
+type KeychainData struct {
+	Username string
+	Password string
+}

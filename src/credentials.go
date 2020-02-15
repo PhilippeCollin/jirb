@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"syscall"
 
@@ -19,6 +20,30 @@ func getKeyring() keyring.Keyring {
 	return ring
 }
 
+func updateCredentials(ring keyring.Keyring) (string, string) {
+	creds := retrieveExistingCredentials(ring)
+	fmt.Printf("Jira username (%s): ", creds.Username)
+	var newUsername string
+	_, err := fmt.Scanln(&newUsername)
+	check(err)
+	if newUsername == "" {
+		newUsername = creds.Username
+	}
+	var isDifferentUser = false
+	if newUsername != creds.Username {
+		isDifferentUser = true
+	}
+
+	var newPassword string
+	fmt.Print("Password (Empty to make no change): ")
+	_, err = fmt.Scanln(&newPassword)
+	check(err)
+
+	if isDifferentUser || newPassword != "" {
+		saveCredentials(newUsername, newPassword, ring)
+	}
+	return newUsername, newPassword
+}
 
 func askCredentials() (string, string) {
 	fmt.Print("Jira username: ")
@@ -39,12 +64,27 @@ func encodeCredentials(username, password string) string {
 	return base64.StdEncoding.EncodeToString([]byte(usernameWithPassword))
 }
 
-func saveCredentials(encodedCredentials string, ring keyring.Keyring) {
-	err := ring.Set(keyring.Item{
+func saveCredentials(username string, password string, ring keyring.Keyring) {
+	data := KeychainData{
+		Username: username,
+		Password: password,
+	}
+	jsonData, err := json.Marshal(data)
+	check(err)
+	err = ring.Set(keyring.Item{
 		Key:         keyringKey,
-		Data:        []byte(encodedCredentials),
+		Data:        jsonData,
 		Description: "Jira credentials used by the Jirb tool",
 		Label:       "Jira Credentials",
 	})
 	check(err)
+}
+
+func retrieveExistingCredentials(ring keyring.Keyring) KeychainData {
+	item, _err := ring.Get(keyringKey)
+	check(_err)
+	creds := KeychainData{}
+	err := json.Unmarshal(item.Data, &creds)
+	check(err)
+	return creds
 }
