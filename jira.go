@@ -5,10 +5,6 @@ import (
 	"net/http"
 )
 
-func formatRequestURL(jiraHostURL, username string) string {
-	return fmt.Sprintf("%s/rest/api/latest/search?jql=assignee=%s AND status=\"In Progress\"", jiraHostURL, username)
-}
-
 func prepareRequest(jiraHostURL, username string) *http.Request {
 	baseURL := fmt.Sprintf("%s/rest/api/latest/search", jiraHostURL)
 	request, err := http.NewRequest(http.MethodGet, baseURL, nil)
