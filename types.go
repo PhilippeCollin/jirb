@@ -2,11 +2,10 @@ package main
 
 type Preferences struct {
 	JiraHostURL string
-	Username    string
 }
 
 func (p Preferences) isComplete() bool {
-	return p.JiraHostURL != "" && p.Username != ""
+	return p.JiraHostURL != ""
 }
 
 type Issue struct {
@@ -23,7 +22,11 @@ type IssuesResponse struct {
 	Issues     []Issue
 }
 
-type KeychainData struct {
+type Credentials struct {
 	Username string
 	Password string
+}
+
+func (k Credentials) isComplete() bool {
+	return k.Username != "" && k.Password != ""
 }

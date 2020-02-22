@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
-	"os"
+	"os/exec"
 	"strings"
 
 	"github.com/chzyer/readline"
@@ -22,33 +22,44 @@ func mapIssuesToPromptItems(issues []Issue) []string {
 
 func main() {
 	updateConfig := flag.Bool("config", false, "Option to cycle through configurations and optionally change values")
+	reset := flag.Bool("reset", false, "Remove all configurations files and keychain entries.")
 
-	ring := getKeyring()
+	flag.Parse()
 
-	credsItem, err := ring.Get(keyringKey)
-	encodedCredentials := ""
-	if os.IsNotExist(err) || credsItem.Data == nil {
-		username, password := askCredentials()
-		encodedCredentials = encodeCredentials(username, password)
-		saveCredentials(username, password, ring)
-	} else {
-		check(err)
-		encodedCredentials = string(credsItem.Data)
+	nFlags := flag.NFlag()
+	if nFlags > 1 {
+		panic("Cannot use more than one flag at the same time.")
 	}
 
-	preferences := getPreferences()
-	request := prepareRequest(preferences.JiraHostURL, preferences.Username)
-	check(err)
+	if *reset {
+		deletePreferencesFile()
+		deleteCredentials()
+	}
 
-	request.Header.Add("Authorization", "Basic "+encodedCredentials)
+	if *updateConfig {
+		updateAllPreferences()
+		updateCredentials()
+	}
+
+	prefs := getOrCreatePreferences()
+	creds := getOrCreateCredentials()
+	basicAuthHeader := getBasicAuthHeader(creds.Username, creds.Password)
+
+	request := prepareRequest(prefs.JiraHostURL, creds.Username)
+
+	request.Header.Add("Authorization", basicAuthHeader)
 
 	client := &http.Client{}
 	resp, err := client.Do(request)
+	if resp.StatusCode != 200 {
+		fmt.Println("Received status %i from jira server", resp.Status)
+	}
 	check(err)
 	defer resp.Body.Close()
 
 	data := IssuesResponse{}
 	err = json.NewDecoder(resp.Body).Decode(&data)
+	fmt.Println(resp.Status)
 	check(err)
 
 	promptChoices := mapIssuesToPromptItems(data.Issues)
@@ -71,8 +82,6 @@ func main() {
 	check(err)
 	issueKind := strings.ToLower(result)
 
-	fmt.Println(branchName)
-
 	fmt.Print("Branch name: ")
 	input, err := readline.New("")
 	check(err)
@@ -81,5 +90,7 @@ func main() {
 	branchName, err = input.Readline()
 	check(err)
 
-	fmt.Println(branchName)
+	cmd := exec.Command("git", "checkout", "-b", branchName)
+	err = cmd.Run()
+	check(err)
 }
