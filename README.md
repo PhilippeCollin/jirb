@@ -1,6 +1,8 @@
 # Jirb
 Jirb is a simple tool that allows you to create a git branch from a Jira issue without messing up the ticket number in your branch name.
 
+Currently only useful if your branch names follow syntax similar to `feature/ABC-123_branch-description` or `hotfix/ABC-123_branch-description`
+
 ## First Use
 
 1. Move to a git project you want to work on
@@ -15,16 +17,24 @@ Jirb is a simple tool that allows you to create a git branch from a Jira issue w
     * _jirb_ does so with the command `git checkout -b <name>`
 
 ## Following uses
-_jirb_ stores your settings locally so that following uses are faster. You will not need to enter your credentials or Jira base url. 
+_jirb_ stores your settings locally. Following uses will not required you to enter your credentials or Jira URL. 
+
+## Options
+Option | Description
+--- | ---
+`-config` | Cycle through all configurations and optionally change values.
+`-reset` | Remove all configurations files and keychain entries making it as if you had never run this tool.
+`-help` | Prints a usage message describing these options.
+
 
 ## Preferences
 Preferences currently only include the base url of your Jira server. They are stored in the `$HOME/.jirb` file.
 
 ## Credentials storage
-Your ceredentials are store inside the default keychain of your OS, and never anywhere else.
+Your credentials are stored inside the default keychain and loaded in memory during execution.
 
 ## Jira Authentication
 Requests to your Jira server are authenticated using basic auth.
 
 ## How are issues selected ?
-_jirb_ lists all the issues that are assigned to you and in progress.
+_jirb_ lists all the issues that are assigned to you and currently in progress.
