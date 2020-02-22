@@ -21,10 +21,16 @@ func mapIssuesToPromptItems(issues []Issue) []string {
 }
 
 func main() {
-	updateConfig := flag.Bool("config", false, "Option to cycle through configurations and optionally change values")
-	reset := flag.Bool("reset", false, "Remove all configurations files and keychain entries.")
+	updateConfig := flag.Bool("config", false, "Cycle through configurations and optionally change values.")
+	reset := flag.Bool("reset", false, "Remove all configurations files and keychain entries, making it as if you had never run this tool.")
+	help := flag.Bool("help", false, "Show this help message.")
 
 	flag.Parse()
+
+	if *help {
+		flag.PrintDefaults()
+		return
+	}
 
 	nFlags := flag.NFlag()
 	if nFlags > 1 {
