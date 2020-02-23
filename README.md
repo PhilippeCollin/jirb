@@ -1,7 +1,7 @@
 # Jirb
 Jirb is a simple tool that allows you to create a git branch from a Jira issue without messing up the ticket number in your branch name.
 
-Currently only useful if your branch names follow syntax similar to `feature/ABC-123_branch-description` or `hotfix/ABC-123_branch-description`
+Currently only useful if your branch names follow a syntax similar to `feature/ABC-123_branch-description` or `hotfix/ABC-123_branch-description`
 
 ## First Use
 
